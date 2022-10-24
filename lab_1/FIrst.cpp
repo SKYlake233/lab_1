@@ -1,4 +1,5 @@
 #include<windows.h>
+#include"resource.h"
 #include<windowsx.h>
 
 
@@ -8,10 +9,12 @@ void DrawCircle(HDC hDC, int x, int y, int r, COLORREF color);
 int  WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPWSTR pCmdLine, int nCmdShow) {
 
 	MSG Msg;
-
+	//init
 	WNDCLASSEX wndclass;
+
 	WCHAR lpszClassName[] = L"简单窗口";
 	wndclass.style = 0;
+	//proc
 	wndclass.lpfnWndProc = WndProc;
 	wndclass.cbClsExtra = 0;
 	wndclass.cbWndExtra = 0;
@@ -24,11 +27,12 @@ int  WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPWSTR pCmdLine, 
 	wndclass.hIconSm = LoadIcon(nullptr, IDI_APPLICATION);
 	wndclass.cbSize = sizeof(WNDCLASSEX);
 
-
+	//regis
 	if (!RegisterClassExW(&wndclass)) {
 		return false;
 	}
 
+	// handler of windows
 	HWND hwnd;
 	WCHAR lpszTitle[] = L"我的API函数";
 	hwnd = CreateWindow(
@@ -60,6 +64,11 @@ int  WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPWSTR pCmdLine, 
 }
 
 static LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
+	HDC hDC;
+	POINT pt;
+	PAINTSTRUCT ps;
+	
+	
 	//设置字体
 	HFONT hFONT = CreateFont(
 		-15/*高度*/, -7.5/*宽度*/, 0/*不用管*/, 0/*不用管*/, 400 /*一般这个值设为400*/,
@@ -71,9 +80,8 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM l
 		TEXT("微软雅黑")  //字体名
 	);
 
-	HDC hDC;
-	POINT pt;
-	PAINTSTRUCT ps;
+
+	
 	switch (message)
 	{
 	case(WM_DESTROY):
@@ -86,6 +94,8 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM l
 		pt.y = 0;
 		pt.x = GET_X_LPARAM(lParam);
 		pt.y = GET_Y_LPARAM(lParam);
+
+		//get HDC (环境句柄)
 		hDC = GetDC(hwnd);
 		DrawCircle(hDC, pt.x, pt.y, 100, RGB(255, 0, 0));
 		ReleaseDC(hwnd,hDC);
@@ -101,12 +111,24 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM l
 		TextOut(hDC, pt.x, pt.y, L"hello world!", 12);
 		break;
 
-	case(WM_LBUTTONDBLCLK):
-		pt.x = 0;
-		pt.y = 0;
-		pt.x = GET_X_LPARAM(lParam);
-		pt.y = GET_Y_LPARAM(lParam);
-		hDC = GetDC(hwnd);
+	//case(WM_LBUTTONDOWN):
+	//{
+	//	pt.x = 0;
+	//	pt.y = 0;
+	//	pt.x = GET_X_LPARAM(lParam);
+	//	pt.y = GET_Y_LPARAM(lParam);
+	//	hDC = GetDC(hwnd);
+	// hdcm  （图片内存句柄）
+	//	HDC hDCm = CreateCompatibleDC(hDC);
+	//	HINSTANCE hInst = GetWindowInstance(hwnd);
+	//	HBITMAP hBitmap = (HBITMAP)LoadImage(NULL, L"./bitmap1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+	//	SelectObject(hDCm, hBitmap);
+	//	//绘图
+	//	BitBlt(hDC, pt.x, pt.y, 200, 200, hDCm, 0, 0, SRCCOPY);
+	//	ReleaseDC(hwnd, hDC); break;
+	//}
+
+		
 
 	////默认绘图方式
 	//case WM_PAINT:
@@ -137,6 +159,7 @@ void DrawCircle(HDC hDC, int x, int y, int r, COLORREF color) {
 	HPEN hPen = CreatePen(PS_SOLID, 1, color);
 	HPEN hOldPen = (HPEN)SelectObject(hDC, hPen);
 
+	//draw circle
 	Ellipse(hDC, x - r , y - r , x + r , y + r);
 
 	SelectObject(hDC, hOldBrush);
